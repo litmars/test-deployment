@@ -41,9 +41,9 @@ jobs:
       - store_test_results:
           path: app/build/test-results
 
-worflows:
+workflows:
   version: 2.1
   build-and-deploy-workflow:
     jobs:
       - build:
-          context: org-global
+          context: test-context
