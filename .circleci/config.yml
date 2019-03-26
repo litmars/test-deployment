@@ -24,6 +24,12 @@ jobs:
           name: Run Tests
           command: ./gradlew lint test
       - run:
+          name: Print API Token
+          command: echo $LUMA_APPCENTER_API_TOKEN
+      - run:
+          name: Print API Token with braces
+          command: echo ${LUMA_APPCENTER_API_TOKEN}
+      - run:
           name: Upload to HockeyApp
           command: bundle exec fastlane assemble_release
       - store_artifacts:
