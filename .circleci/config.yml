@@ -25,10 +25,10 @@ jobs:
           command: ./gradlew lint test
       - run:
           name: Print API Token
-          command: echo $LUMA_APPCENTER_API_TOKEN
+          command: echo LUMA_APPCENTER_OWNER_NAME
       - run:
           name: Print API Token with braces
-          command: echo ${LUMA_APPCENTER_API_TOKEN}
+          command: echo ${LUMA_APPCENTER_OWNER_NAME}
       - run:
           name: Print Control run
           command: echo "Something"
@@ -46,4 +46,4 @@ worflows:
   build-and-deploy-workflow:
     jobs:
       - build:
-          context: test-context
+          context: org-global
