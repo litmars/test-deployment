@@ -11,7 +11,10 @@ jobs:
       - restore_cache:
           key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
       - run:
-          name: Download Dependencies
+          name: Install Fastlane
+          command: bundle install
+      - run:
+          name: Download App Dependencies
           command: ./gradlew androidDependencies
       - save_cache:
           paths:
@@ -22,7 +25,7 @@ jobs:
           command: ./gradlew lint test
       - run:
           name: Upload to HockeyApp
-          command: sh ./scripts/deploy.sh
+          command: bundle exec fastlane assemble_release
       - store_artifacts:
           path: app/build/reports
           destination: reports
