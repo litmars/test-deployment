@@ -1,0 +1,21 @@
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Submit Build to AppCenter"
+  lane :assemble_release do
+    gradle(task: "clean assembleRelease")
+
+    appcenter_upload(
+      api_token: "${LUMA_APPCENTER_API_TOKEN}",
+      owner_name: "${LUMA_APPCENTER_OWNER_NAME}",
+      group: "${LUMA_APPCENTER_GROUP_NAME}",
+      app_name: "${LUMA_APPCENTER_APP_NAME}",
+      apk: lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH]
+    )  
+  end
+end
