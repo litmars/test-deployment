@@ -25,8 +25,9 @@ jobs:
           paths:
           - ~/.gradle
       - persist_to_workspace:
-          root: .
-          path: .
+          root: ~/project
+          paths:
+            - .
   run-unit-tests:
     <<: *defaults
     steps:
