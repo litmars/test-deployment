@@ -15,7 +15,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore-cache:
+      - restore_cache:
           key: *android_dependencies_cache_key
       - run:
           name: Install Android dependencies
