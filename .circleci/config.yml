@@ -64,7 +64,7 @@ workflows:
 #        only:
 #          - develop
     jobs:
-      - run-unit-tests:
+      - run-unit-tests
       - deploy-to-app-center:
           context: deploy-service-provider-app-to-app-center
           requires:
