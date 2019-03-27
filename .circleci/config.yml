@@ -1,12 +1,15 @@
 version: 2.1
+
 defaults: &defaults
   docker:
     - image: circleci/android:api-28
   environment:
     JVM_OPTS: -Xmx3200m
   working_directory: ~/project
+
 android_dependencies_cache_key: &android_dependencies_cache_key
   jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+
 jobs:
   install-dependencies:
     <<: *defaults
@@ -28,6 +31,7 @@ jobs:
           root: ~/project
           paths:
             - .
+
   run-unit-tests:
     <<: *defaults
     steps:
@@ -36,6 +40,11 @@ jobs:
       - run:
           name: Run Unit Tests
           command: ./gradlew test
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+          - .
+          
   deploy-to-app-center:
     <<: *defaults
     steps:
@@ -52,6 +61,7 @@ jobs:
           destination: reports
       - store_test_results:
           path: app/build/test-results
+
 workflows:
   version: 2.1
   test-and-deploy:
