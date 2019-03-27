@@ -62,10 +62,10 @@ jobs:
 workflows:
   version: 2.1
   test-and-deploy:
-    filters:
-      branches:
-        only:
-          - develop
+#    filters:
+#      branches:
+#        only:
+#          - develop
     jobs:
       - run-unit-tests
       - deploy-to-app-center:
