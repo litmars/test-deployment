@@ -64,6 +64,10 @@ workflows:
   test-and-deploy:
     jobs:
       - run-unit-tests
+          filters:
+            branches:
+              only:
+              - develop
       - deploy-to-app-center:
           context: deploy-service-provider-app-to-app-center
           filters:
