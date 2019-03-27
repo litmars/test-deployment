@@ -53,6 +53,9 @@ jobs:
           name: Decode Keystore for Signing APK
           command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
       - run:
+          name: Check that keystore file exists in right place
+          command: ls -la app
+      - run:
           name: Upload APK to App Center
           command: bundle exec fastlane assemble_release
 
