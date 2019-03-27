@@ -17,9 +17,9 @@ android {
     signingConfigs {
         appCenter {
             storeFile file("serviceproviderapp.appcenter.keystore")
-            storePassword System.getenv("KEYSTORE_PASSWORD")
-            keyAlias System.getenv("KEY_ALIAS")
-            keyPassword System.getenv("KEY_PASSWORD")
+            storePassword System.getenv("SERVICE_PROVIDER_APP_KEYSTORE_PASSWORD")
+            keyAlias System.getenv("SERVICE_PROVIDER_APP_KEY_ALIAS")
+            keyPassword System.getenv("SERVICE_PROVIDER_APP_KEY_PASSWORD")
         }
     }
     buildTypes {
