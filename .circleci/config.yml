@@ -51,7 +51,7 @@ jobs:
           - ~/.gradle
       - run:
           name: Decode Keystore for Signing APK
-          command: base64 -d \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > ~/project/app/serviceproviderapp.appcenter.keystore
+          command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
       - run:
           name: Upload APK to App Center
           command: bundle exec fastlane assemble_release
