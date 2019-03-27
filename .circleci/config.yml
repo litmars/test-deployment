@@ -63,7 +63,7 @@ workflows:
   version: 2.1
   test-and-deploy:
     jobs:
-      - run-unit-tests
+      - run-unit-tests:
           filters:
             branches:
               only:
