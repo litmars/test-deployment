@@ -3,7 +3,7 @@ default_platform(:android)
 platform :android do
   desc "Deploy build to AppCenter"
   lane :assemble_release do
-    gradle(task: "clean assembleRelease")
+    gradle(task: "clean assembleAppCenter")
 
     appcenter_upload(
       api_token: ENV["SERVICE_PROVIDER_APP_APP_CENTER_API_TOKEN"],
