@@ -10,6 +10,12 @@ defaults: &defaults
 android_dependencies_cache_key: &android_dependencies_cache_key
   jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
 
+only-for-develop-branch: &only-for-develop-branch
+  filters:
+    branches:
+      only:
+      - develop
+
 jobs:
   run-unit-tests:
     <<: *defaults
@@ -64,16 +70,10 @@ workflows:
   test-and-deploy:
     jobs:
       - run-unit-tests:
-          filters:
-            branches:
-              only:
-              - develop
+          <<: *only-for-develop-branch
       - deploy-to-app-center:
+          <<: *only-for-develop-branch
           context: deploy-service-provider-app-to-app-center
-          filters:
-            branches:
-              only:
-              - develop
           requires:
             - run-unit-tests
 
