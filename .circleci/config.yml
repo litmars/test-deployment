@@ -1,39 +1,55 @@
 version: 2.1
+
+defaults: &defaults
+  docker:
+    - image: circleci/android:api-28
+  environment:
+    JVM_OPTS: -Xmx3200m
+  working_directory: ~/project
+
+android_dependencies_cache_key: &android_dependencies_cache_key
+  jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+
 jobs:
-  build:
-    working_directory: ~/repo
-    docker:
-      - image: circleci/android:api-28
-    environment:
-      JVM_OPTS: -Xmx3200m
+  install-dependencies:
+    <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - restore-cache:
+          key: *android_dependencies_cache_key
       - run:
-          name: Install Fastlane
-          command: bundle install
-      - run:
-          name: Download App Dependencies
+          name: Install Android dependencies
           command: ./gradlew androidDependencies
+      - run:
+          name: Install Fastlane dependencies for deployment to App Center
+          command: bundle install
       - save_cache:
+          key: *android_dependencies_cache_key
           paths:
-            - ~/.gradle
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+          - ~/.gradle
+      - persist_to_workspace:
+          root: .
+          path: .
+
+  run-unit-tests:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
       - run:
-          name: Run Tests
-          command: ./gradlew lint test
+          name: Run Unit Tests
+          command: ./gradlew test
+
+  deploy-to-app-center:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
       - run:
-          name: Print API Token
-          command: echo LUMA_APPCENTER_OWNER_NAME
+          name: Decode Keystore for Signing APK
+          command: base64 -d <<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > ~/project/app/serviceproviderapp.appcenter.keystore
       - run:
-          name: Print API Token with braces
-          command: echo ${LUMA_APPCENTER_OWNER_NAME}
-      - run:
-          name: Print Control run
-          command: echo "Something"
-      - run:
-          name: Upload to HockeyApp
+          name: Upload APK to App Center
           command: bundle exec fastlane assemble_release
       - store_artifacts:
           path: app/build/reports
@@ -43,7 +59,18 @@ jobs:
 
 workflows:
   version: 2.1
-  build-and-deploy-workflow:
+  test-and-deploy:
+    filters:
+      branches:
+        only:
+          - develop
     jobs:
-      - build:
-          context: test-context
+      - install-dependencies
+      - run-unit-tests:
+          requires:
+            - install-dependencies
+      - deploy-to-app-center:
+          context: deploy-service-provider-app-to-app-center
+          requires:
+            - install-dependencies
+            - run-unit-tests
