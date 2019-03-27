@@ -10,7 +10,32 @@ defaults: &defaults
 android_dependencies_cache_key: &android_dependencies_cache_key
   jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
 
-only-for-develop-branch: &only-for-develop-branch
+fastlane_dependencies_cache_key: &fastlane_dependencies_cache_key
+  gems-{{ checksum "Gemfile.lock" }}
+
+install_android_dependencies: &install_android_dependencies
+  - restore_cache:
+      key: *android_dependencies_cache_key
+  - run:
+      name: Install Android dependencies
+      command: ./gradlew androidDependencies
+  - save_cache:
+      key: *android_dependencies_cache_key
+      paths:
+        - ~/.gradle
+
+install_fastlane_dependencies: &install_fastlane_dependencies
+  - restore_cache:
+      key: *fastlane_dependencies_cache_key
+  - run:
+      name: Install Fastlane dependencies for deployment to App Center
+      command: bundle install
+  - save_cache:
+      key: *fastlane_dependencies_cache_key
+      paths:
+        - vendor/bundle
+
+only_for_develop_branch: &only_for_develop_branch
   filters:
     branches:
       only:
@@ -21,15 +46,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-#      - restore_cache:
-#          key: *android_dependencies_cache_key
-      - run:
-          name: Install Android dependencies
-          command: ./gradlew androidDependencies
-#      - save_cache:
-#          key: *android_dependencies_cache_key
-#          paths:
-#          - ~/.gradle
+      <<: *install_android_dependencies
       - run:
           name: Run unit yests
           command: ./gradlew test #TODO: Run only one build type tests instead of all maybe?
@@ -43,18 +60,8 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-#      - restore_cache:
-#          key: *android_dependencies_cache_key
-      - run:
-          name: Install Android dependencies
-          command: ./gradlew androidDependencies
-      - run:
-          name: Install Fastlane dependencies for deployment to App Center
-          command: bundle install
-#      - save_cache:
-#          key: *android_dependencies_cache_key
-#          paths:
-#          - ~/.gradle
+      <<: *install_android_dependencies
+      <<: *install_fastlane_dependencies
       - run:
           name: Decode Keystore for signing APK
           command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
@@ -67,9 +74,9 @@ workflows:
   test-and-deploy:
     jobs:
       - run-unit-tests:
-          <<: *only-for-develop-branch
+          <<: *only_for_develop_branch
       - deploy-to-app-center:
-          <<: *only-for-develop-branch
+          <<: *only_for_develop_branch
           context: deploy-service-provider-app-to-app-center
           requires:
             - run-unit-tests
