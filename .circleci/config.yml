@@ -21,17 +21,17 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          key: *android_dependencies_cache_key
+#      - restore_cache:
+#          key: *android_dependencies_cache_key
       - run:
           name: Install Android dependencies
           command: ./gradlew androidDependencies
-      - save_cache:
-          key: *android_dependencies_cache_key
-          paths:
-          - ~/.gradle
+#      - save_cache:
+#          key: *android_dependencies_cache_key
+#          paths:
+#          - ~/.gradle
       - run:
-          name: Run Unit Tests
+          name: Run unit yests
           command: ./gradlew test #TODO: Run only one build type tests instead of all maybe?
       - store_artifacts:
           path: app/build/reports
@@ -43,24 +43,21 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - restore_cache:
-          key: *android_dependencies_cache_key
+#      - restore_cache:
+#          key: *android_dependencies_cache_key
       - run:
           name: Install Android dependencies
           command: ./gradlew androidDependencies
       - run:
           name: Install Fastlane dependencies for deployment to App Center
           command: bundle install
-      - save_cache:
-          key: *android_dependencies_cache_key
-          paths:
-          - ~/.gradle
+#      - save_cache:
+#          key: *android_dependencies_cache_key
+#          paths:
+#          - ~/.gradle
       - run:
-          name: Decode Keystore for Signing APK
+          name: Decode Keystore for signing APK
           command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
-      - run:
-          name: Check that keystore file exists in right place
-          command: ls -la app
       - run:
           name: Upload APK to App Center
           command: bundle exec fastlane assemble_release
