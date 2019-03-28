@@ -13,27 +13,35 @@ android_dependencies_cache_key: &android_dependencies_cache_key
 fastlane_dependencies_cache_key: &fastlane_dependencies_cache_key
   gems-{{ checksum "Gemfile.lock" }}
 
-install_android_dependencies: &install_android_dependencies
-  - restore_cache:
-      key: *android_dependencies_cache_key
-  - run:
-      name: Install Android dependencies
-      command: ./gradlew androidDependencies
-  - save_cache:
-      key: *android_dependencies_cache_key
-      paths:
-        - ~/.gradle
+restore_android_cache: &restore_android_cache
+  restore_cache:
+    key: *android_dependencies_cache_key
 
-install_fastlane_dependencies: &install_fastlane_dependencies
-  - restore_cache:
-      key: *fastlane_dependencies_cache_key
-  - run:
-      name: Install Fastlane dependencies for deployment to App Center
-      command: bundle install
-  - save_cache:
-      key: *fastlane_dependencies_cache_key
-      paths:
-        - vendor/bundle
+restore_fastlane_cache: &restore_fastlane_cache
+  restore_cache:
+    key: *fastlane_dependencies_cache_key
+
+save_android_cache: &save_android_cache
+  save_cache:
+    key: *android_dependencies_cache_key
+    paths:
+      - ~/.gradle
+
+save_fastlane_cache: &save_fastlane_cache
+  save_cache:
+    key: *fastlane_dependencies_cache_key
+    paths:
+      - vendor/bundle
+
+download_android_dependencies: &download_android_dependencies
+  run:
+    name: Download Android dependencies
+    command: ./gradlew androidDependencies
+
+download_fastlane_dependencies: &download_fastlane_dependencies
+  run:
+    name: Download Fastlane dependencies for deployment to App Center
+    command: bundle install
 
 only_for_develop_branch: &only_for_develop_branch
   filters:
@@ -46,7 +54,9 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - *install_android_dependencies
+      - *restore_android_cache
+      - *download_android_dependencies
+      - *save_android_cache
       - run:
           name: Run unit yests
           command: ./gradlew test #TODO: Run only one build type tests instead of all maybe?
@@ -60,8 +70,12 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - *install_android_dependencies
-      - *install_fastlane_dependencies
+      - *restore_android_cache
+      - *download_android_dependencies
+      - *save_android_cache
+      - *restore_fastlane_cache
+      - *download_fastlane_dependencies
+      - *save_fastlane_cache
       - run:
           name: Decode Keystore for signing APK
           command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
