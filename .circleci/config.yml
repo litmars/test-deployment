@@ -47,7 +47,7 @@ only_for_develop_branch: &only_for_develop_branch
   filters:
     branches:
       only:
-      - develop
+        - develop
 
 jobs:
   run-unit-tests:
@@ -59,7 +59,7 @@ jobs:
       - *save_android_cache
       - run:
           name: Run unit yests
-          command: ./gradlew test #TODO: Run only one build type tests instead of all maybe?
+          command: ./gradlew testAppCenterUnitTest
       - store_artifacts:
           path: app/build/reports
           destination: reports
@@ -77,11 +77,11 @@ jobs:
       - *download_fastlane_dependencies
       - *save_fastlane_cache
       - run:
-          name: Decode Keystore for signing APK
+          name: Decode keystore for signing APK
           command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
       - run:
-          name: Upload APK to App Center
-          command: bundle exec fastlane assemble_release
+          name: Build APK and upload it to App Center
+          command: bundle exec fastlane build_and_upload_to_app_center
 
 workflows:
   version: 2.1

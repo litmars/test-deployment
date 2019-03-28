@@ -1,8 +1,8 @@
 default_platform(:android)
 
 platform :android do
-  desc "Deploy build to AppCenter"
-  lane :assemble_release do
+  desc "Build APK and upload it to App Center"
+  lane :build_and_upload_to_app_center do
     gradle(task: "clean assembleAppCenter")
 
     appcenter_upload(
