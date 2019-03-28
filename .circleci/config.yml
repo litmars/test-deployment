@@ -46,7 +46,7 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      <<: *install_android_dependencies
+      - *install_android_dependencies
       - run:
           name: Run unit yests
           command: ./gradlew test #TODO: Run only one build type tests instead of all maybe?
@@ -60,8 +60,8 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      <<: *install_android_dependencies
-      <<: *install_fastlane_dependencies
+      - *install_android_dependencies
+      - *install_fastlane_dependencies
       - run:
           name: Decode Keystore for signing APK
           command: base64 --decode \<<< $SERVICE_PROVIDER_APP_APP_CENTER_ENCODED_KEYSTORE > app/serviceproviderapp.appcenter.keystore
